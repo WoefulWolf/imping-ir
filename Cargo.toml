@@ -1,0 +1,23 @@
+[package]
+name = "imping-ir"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.94"
+license = "MIT OR Apache-2.0"
+description = "Intermediate representation types and JSON Schema for the imping modding suite."
+publish = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# JSON Schema generation. Optional so consumers that only read IR (e.g. codegen)
+# need not pull it.
+schemars = { version = "1", optional = true }
+
+[features]
+# `schema` is opt-in; enable it to derive and emit the JSON Schema.
+default = []
+schema = ["dep:schemars"]
+
+[lints.rust]
+missing_docs = "warn"

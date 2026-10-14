@@ -1,0 +1,67 @@
+{
+  "format_version": { "major": 1, "minor": 0 },
+  "modules": [
+    {
+      "name": "game.exe",
+      "architecture": "x64",
+      "image_base": "0x140000000",
+      "timestamp": "0x64b8f2a1",
+      "image_size": "0xa2b000",
+      "hash": {
+        "algorithm": "sha256",
+        "value": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+      },
+      "types": [
+        { "id": 0, "name": "void", "kind": "primitive", "primitive": "void" },
+        { "id": 1, "name": "float", "kind": "primitive", "primitive": "f32" },
+        { "id": 2, "name": "unsigned int", "kind": "primitive", "primitive": "u32" },
+        { "id": 3, "name": "Vector3", "kind": "struct", "size": 12, "align": 4,
+          "fields": [
+            { "name": "x", "type": 1, "offset": 0 },
+            { "name": "y", "type": 1, "offset": 4 },
+            { "name": "z", "type": 1, "offset": 8 }
+          ] },
+        { "id": 4, "name": "Vector3 *", "kind": "pointer", "pointee": 3, "const": false },
+        { "id": 5, "name": "Flags", "kind": "struct", "size": 4, "align": 4,
+          "fields": [
+            { "name": "visible", "type": 2, "offset": 0, "bits": { "bit_offset": 0, "bit_width": 1 } },
+            { "name": "team",    "type": 2, "offset": 0, "bits": { "bit_offset": 1, "bit_width": 3 } }
+          ] },
+        { "id": 6, "name": "EntityKind", "kind": "enum", "underlying": 2,
+          "variants": [
+            { "name": "None", "value": 0 },
+            { "name": "Player", "value": 1 },
+            { "name": "Npc", "value": 2 }
+          ] }
+      ],
+      "functions": [
+        { "name": "Normalize", "namespace": ["math"], "rva": "0x14230",
+          "calling_convention": "win64",
+          "return_type": 4,
+          "parameters": [
+            { "name": "self", "type": 4, "storage": { "kind": "register", "value": "rcx" } }
+          ],
+          "variadic": false, "custom_storage": false,
+          "tags": ["hot"],
+          "verification": "48895c2408" },
+        { "name": "Log", "namespace": ["util"], "rva": "0x15a00",
+          "calling_convention": "cdecl",
+          "return_type": 0,
+          "parameters": [
+            { "name": "fmt", "type": 4, "storage": { "kind": "stack", "offset": 0 } }
+          ],
+          "variadic": true }
+      ],
+      "globals": [
+        { "name": "gGravity", "rva": "0x3a1200", "type": 1 }
+      ],
+      "vtables": [
+        { "name": "Entity", "namespace": ["game"], "rva": "0x3b0040",
+          "entries": [
+            { "index": 0, "name": "Destructor", "rva": "0x15000" },
+            { "index": 1, "name": "Update", "rva": "0x15040", "signature": null }
+          ] }
+      ]
+    }
+  ]
+}
