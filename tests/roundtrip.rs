@@ -49,6 +49,20 @@ fn parses_sample_and_decodes_hex_addresses() {
     assert_eq!(*underlying, TypeId(2));
     assert_eq!(variants[1].value, 1);
 
+    // Types may sit in a namespace; a struct may mark its base class.
+    assert!(vector3.namespace.is_empty());
+    let player = &module.types[8];
+    assert_eq!(
+        (player.name.as_str(), player.namespace.as_slice()),
+        ("Player", &["game".to_string()][..])
+    );
+    let TypeKind::Struct { fields, .. } = &player.kind else {
+        panic!("expected a struct");
+    };
+    assert!(fields[0].base);
+    assert_eq!(fields[0].type_id, TypeId(7));
+    assert!(!fields[1].base);
+
     // Functions: hex RVA, verification bytes, storage, variadic.
     let normalize = &module.functions[0];
     assert_eq!(normalize.rva, 0x1_4230);
@@ -83,6 +97,14 @@ fn round_trips_through_json() {
     // Addresses are written back as hex strings, not numbers.
     assert!(written.contains("\"rva\": \"0x14230\""));
     assert!(written.contains("\"image_base\": \"0x140000000\""));
+
+    // A type's namespace and a field's base flag are written only when set.
+    let value: serde_json::Value = serde_json::from_str(&written).expect("JSON");
+    let types = &value["modules"][0]["types"];
+    assert!(types[3].get("namespace").is_none());
+    assert_eq!(types[8]["namespace"], serde_json::json!(["game"]));
+    assert_eq!(types[8]["fields"][0]["base"], serde_json::json!(true));
+    assert!(types[8]["fields"][1].get("base").is_none());
 }
 
 #[test]

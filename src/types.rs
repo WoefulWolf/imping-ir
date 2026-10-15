@@ -24,6 +24,10 @@ pub struct TypeDef {
     pub id: TypeId,
     /// The type's source name (e.g. `"Vector3"`). Not required to be unique.
     pub name: String,
+    /// The namespace path leading to the type, outermost first. Empty for a
+    /// type outside any namespace. Since format 1.1.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub namespace: Vec<String>,
     /// What kind of type this is, and its kind-specific data.
     #[serde(flatten)]
     pub kind: TypeKind,
@@ -126,6 +130,12 @@ pub struct Field {
     /// Bitfield placement, if this field is a bitfield.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bits: Option<BitField>,
+    /// Whether this field is the struct's base class: the struct it derives
+    /// from, embedded at offset 0. Meaningful only on a struct-typed field at
+    /// offset 0 of a [`TypeKind::Struct`]; consumers ignore it elsewhere.
+    /// Since format 1.1.
+    #[serde(default, skip_serializing_if = "core::ops::Not::not")]
+    pub base: bool,
 }
 
 /// The bit placement of a bitfield [`Field`] within its backing storage.

@@ -17,7 +17,7 @@
 //! use imping_ir::{Architecture, Ir};
 //!
 //! let json = r#"{
-//!   "format_version": { "major": 1, "minor": 0 },
+//!   "format_version": { "major": 1, "minor": 1 },
 //!   "modules": [ { "name": "game.exe", "architecture": "x64",
 //!     "image_base": "0x140000000", "timestamp": "0x64b8f2a1",
 //!     "image_size": "0xa2b000" } ]

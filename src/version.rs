@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 pub const SUPPORTED_MAJOR: u16 = 1;
 
 /// The minor format version this crate writes.
-pub const CURRENT_MINOR: u16 = 0;
+pub const CURRENT_MINOR: u16 = 1;
 
 /// The format version of an IR file: a major and a minor number.
 ///

@@ -1,5 +1,5 @@
 {
-  "format_version": { "major": 1, "minor": 0 },
+  "format_version": { "major": 1, "minor": 1 },
   "modules": [
     {
       "name": "game.exe",
@@ -32,6 +32,16 @@
             { "name": "None", "value": 0 },
             { "name": "Player", "value": 1 },
             { "name": "Npc", "value": 2 }
+          ] },
+        { "id": 7, "name": "Entity", "namespace": ["game"], "kind": "struct", "size": 16, "align": 4,
+          "fields": [
+            { "name": "position", "type": 3, "offset": 0 },
+            { "name": "kind", "type": 6, "offset": 12 }
+          ] },
+        { "id": 8, "name": "Player", "namespace": ["game"], "kind": "struct", "size": 20, "align": 4,
+          "fields": [
+            { "name": "base", "type": 7, "offset": 0, "base": true },
+            { "name": "health", "type": 2, "offset": 16 }
           ] }
       ],
       "functions": [

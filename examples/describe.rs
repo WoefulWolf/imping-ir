@@ -19,6 +19,7 @@ fn main() -> imping_ir::Result<()> {
             TypeDef {
                 id: TypeId(0),
                 name: "void".to_string(),
+                namespace: vec![],
                 kind: TypeKind::Primitive {
                     primitive: Primitive::Void,
                 },
@@ -26,6 +27,7 @@ fn main() -> imping_ir::Result<()> {
             TypeDef {
                 id: TypeId(1),
                 name: "int".to_string(),
+                namespace: vec![],
                 kind: TypeKind::Primitive {
                     primitive: Primitive::I32,
                 },

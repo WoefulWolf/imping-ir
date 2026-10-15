@@ -32,6 +32,7 @@ fn primitive(id: u32, name: &str, primitive: Primitive) -> TypeDef {
     TypeDef {
         id: TypeId(id),
         name: name.to_string(),
+        namespace: vec![],
         kind: TypeKind::Primitive { primitive },
     }
 }
@@ -105,6 +106,7 @@ fn enum_over_non_integer_is_reported() {
         TypeDef {
             id: TypeId(1),
             name: "Bad".to_string(),
+            namespace: vec![],
             kind: TypeKind::Enum {
                 underlying: TypeId(0),
                 variants: vec![],
@@ -131,11 +133,13 @@ fn enum_over_typedef_to_integer_is_valid() {
         TypeDef {
             id: TypeId(1),
             name: "DWORD".to_string(),
+            namespace: vec![],
             kind: TypeKind::Typedef { target: TypeId(0) },
         },
         TypeDef {
             id: TypeId(2),
             name: "Kind".to_string(),
+            namespace: vec![],
             kind: TypeKind::Enum {
                 underlying: TypeId(1),
                 variants: vec![],
