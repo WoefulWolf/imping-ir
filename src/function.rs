@@ -7,10 +7,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Function {
-    /// The function's name (without namespace). Overloads may share a name.
+    /// The function's name, without namespace. Overloads may share a name.
     pub name: String,
-    /// The namespace path leading to the function, outermost first (e.g.
-    /// `["Game", "Entity"]`). Empty for a free function.
+    /// The namespace path, outermost first (e.g. `["Engine", "Entity"]`). Empty
+    /// for a free function.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub namespace: Vec<String>,
     /// The function's address, relative to the module's image base.
@@ -27,15 +27,15 @@ pub struct Function {
     /// Whether the function is variadic.
     #[serde(default)]
     pub variadic: bool,
-    /// Whether the function uses non-standard argument storage described by the
-    /// `parameters`' [`Storage`], rather than its calling convention's defaults.
+    /// Whether the parameters use non-standard storage, given by their
+    /// [`Storage`], instead of the calling convention's defaults.
     #[serde(default)]
     pub custom_storage: bool,
     /// Free-form tags attached to the function (e.g. in Ghidra).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
-    /// The bytes expected at the function's prologue, used to verify the build
-    /// before hooking. Empty if no verification bytes were recorded.
+    /// The bytes expected at the start of the function, used to verify the
+    /// build before hooking. Empty if none were recorded.
     #[serde(
         default,
         skip_serializing_if = "Vec::is_empty",
@@ -84,8 +84,7 @@ pub struct Parameter {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(tag = "kind", rename_all = "snake_case")]
 pub enum Storage {
-    /// Passed in a register, named by the architecture's convention (e.g.
-    /// `"rcx"`, `"xmm0"`).
+    /// Passed in a register (e.g. `"rcx"`, `"xmm0"`).
     Register {
         /// The register name, lowercase.
         value: String,

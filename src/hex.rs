@@ -1,10 +1,9 @@
-//! Serde helpers that encode integers and byte strings as hexadecimal, so
-//! addresses and prologue bytes are readable in the IR file.
+//! Serde helpers that write integers and bytes as hex, so addresses and
+//! prologue bytes stay readable in the IR file.
 
 /// Encodes an unsigned integer as a `0x`-prefixed lowercase hex string.
 ///
-/// Used via `#[serde(with = "crate::hex::int")]`. On read, a leading `0x` or
-/// `0X` is optional.
+/// On read, the `0x` or `0X` prefix is optional.
 pub(crate) mod int {
     use core::fmt::{Display, LowerHex};
     use serde::{Deserialize, Deserializer, Serializer};
@@ -33,10 +32,8 @@ pub(crate) mod int {
     }
 }
 
-/// Encodes a byte string as a lowercase hex string with no prefix (e.g.
+/// Encodes a `Vec<u8>` as a lowercase hex string with no prefix (e.g.
 /// `"48895c2408"`).
-///
-/// Used via `#[serde(with = "crate::hex::bytes")]` on a `Vec<u8>`.
 pub(crate) mod bytes {
     use core::fmt::Write;
     use serde::{Deserialize, Deserializer, Serializer};
@@ -44,7 +41,7 @@ pub(crate) mod bytes {
     pub(crate) fn serialize<S: Serializer>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error> {
         let mut text = String::with_capacity(bytes.len() * 2);
         for byte in bytes {
-            // Writing to a `String` cannot fail.
+            // Writing to a String can't fail.
             let _ = write!(text, "{byte:02x}");
         }
         serializer.serialize_str(&text)

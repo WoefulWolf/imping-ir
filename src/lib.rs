@@ -1,17 +1,18 @@
-//! Intermediate representation types and JSON Schema for the imping modding
-//! suite.
+//! Intermediate representation (IR) types and JSON Schema for the imping
+//! modding suite.
 //!
-//! One IR file ([`Ir`]) describes one build of a target program: a
-//! [`FormatVersion`] and a list of [`Module`]s, each carrying its identity, its
-//! type table, and its functions, globals and vtables. The types here
-//! `serde`-serialize to and from that file as JSON, and — with the `schema`
-//! feature — emit its [JSON Schema](json_schema).
+//! One IR file describes one build of a target. Addresses are relative to each
+//! module's image base and written as `0x` hex strings; types are referenced
+//! by [`TypeId`] into the module's type table.
 //!
-//! Addresses are relative to each module's image base and are written as
-//! `0x`-prefixed hex strings; type references use numeric [`TypeId`]s into the
-//! module's type table.
+//! - [`Ir`]: the whole file, read with [`Ir::from_json_str`], written with
+//!   [`Ir::to_json_pretty`] and checked with [`Ir::validate`].
+//! - [`FormatVersion`]: readers reject other major versions.
+//! - [`Module`]: one image's identity, [`TypeDef`]s, [`Function`]s,
+//!   [`Global`]s and [`Vtable`]s.
+//! - `json_schema()`: the file's JSON Schema, with the `schema` feature.
 //!
-//! # Reading and writing
+//! # Examples
 //!
 //! ```
 //! use imping_ir::{Architecture, Ir};
@@ -65,19 +66,17 @@ pub struct Ir {
 }
 
 impl Ir {
-    /// Parses IR from JSON bytes, rejecting an unsupported major version.
+    /// Parses IR from JSON bytes.
     ///
-    /// The version is checked before the body, so a file with an incompatible
-    /// major version fails with [`Error::UnsupportedVersion`] rather than a
-    /// confusing structural error.
+    /// The version is read first, so a file of another major version fails
+    /// with [`Error::UnsupportedVersion`] instead of a structural error.
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Json`] if the bytes are not valid IR JSON, or
-    /// [`Error::UnsupportedVersion`] if the major version is not
-    /// [`SUPPORTED_MAJOR`].
+    /// - [`Error::UnsupportedVersion`] if the major version isn't [`SUPPORTED_MAJOR`].
+    /// - [`Error::Json`] if the bytes aren't valid IR JSON.
     pub fn from_json_slice(bytes: &[u8]) -> Result<Self> {
-        /// Reads just the version, tolerating the rest of the document.
+        /// Just the version; the rest of the document is ignored.
         #[derive(Deserialize)]
         struct Header {
             format_version: FormatVersion,
@@ -93,11 +92,11 @@ impl Ir {
         Ok(serde_json::from_slice(bytes)?)
     }
 
-    /// Parses IR from a JSON string. See [`from_json_slice`](Self::from_json_slice).
+    /// Parses IR from a JSON string, like [`from_json_slice`](Self::from_json_slice).
     ///
     /// # Errors
     ///
-    /// As for [`from_json_slice`](Self::from_json_slice).
+    /// Same as [`from_json_slice`](Self::from_json_slice).
     pub fn from_json_str(text: &str) -> Result<Self> {
         Self::from_json_slice(text.as_bytes())
     }
@@ -106,7 +105,7 @@ impl Ir {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Json`] if serialization fails.
+    /// [`Error::Json`] if serialization fails.
     pub fn to_json(&self) -> Result<String> {
         Ok(serde_json::to_string(self)?)
     }
@@ -115,16 +114,25 @@ impl Ir {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Json`] if serialization fails.
+    /// [`Error::Json`] if serialization fails.
     pub fn to_json_pretty(&self) -> Result<String> {
         Ok(serde_json::to_string_pretty(self)?)
     }
 }
 
-/// Returns the JSON Schema describing the IR file format.
+/// Returns the JSON Schema of the IR file format.
 ///
-/// Serialize the returned schema with `serde_json` to obtain the schema
-/// document. Requires the `schema` feature.
+/// Requires the `schema` feature. Serialize the result with `serde_json` to get
+/// the schema document.
+///
+/// # Examples
+///
+/// ```
+/// let schema = imping_ir::json_schema();
+/// let text = serde_json::to_string_pretty(&schema)?;
+/// assert!(text.contains("format_version"));
+/// # Ok::<(), serde_json::Error>(())
+/// ```
 #[cfg(feature = "schema")]
 pub fn json_schema() -> schemars::Schema {
     schemars::schema_for!(Ir)

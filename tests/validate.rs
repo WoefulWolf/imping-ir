@@ -1,11 +1,11 @@
-//! Tests for semantic validation of IR.
+//! Semantic validation of IR.
 
 use imping_ir::{
     Architecture, CallingConvention, Function, Global, Ir, Module, Primitive, TypeDef, TypeId,
     TypeKind, ValidationError,
 };
 
-/// A module with the given types, functions and globals and empty identity.
+/// Builds a module named `m` with a zeroed identity.
 fn module(types: Vec<TypeDef>, functions: Vec<Function>, globals: Vec<Global>) -> Module {
     Module {
         name: "m".to_string(),
@@ -60,7 +60,6 @@ fn valid_sample_passes() {
 
 #[test]
 fn dangling_type_reference_is_reported() {
-    // A function returns type id 99, which is not defined.
     let ir = ir(module(
         vec![primitive(0, "void", Primitive::Void)],
         vec![function("f", TypeId(99))],
@@ -100,7 +99,6 @@ fn duplicate_type_id_is_reported() {
 
 #[test]
 fn enum_over_non_integer_is_reported() {
-    // An enum whose underlying type is a float, not an integer.
     let types = vec![
         primitive(0, "float", Primitive::F32),
         TypeDef {
@@ -127,7 +125,6 @@ fn enum_over_non_integer_is_reported() {
 
 #[test]
 fn enum_over_typedef_to_integer_is_valid() {
-    // An enum whose underlying is a typedef chain ending in an integer.
     let types = vec![
         primitive(0, "u32", Primitive::U32),
         TypeDef {
@@ -151,7 +148,6 @@ fn enum_over_typedef_to_integer_is_valid() {
 
 #[test]
 fn all_problems_are_collected() {
-    // Two independent problems in one module.
     let ir = ir(module(
         vec![
             primitive(0, "void", Primitive::Void),
@@ -167,6 +163,6 @@ fn all_problems_are_collected() {
     ));
 
     let errors = ir.validate().expect_err("should be invalid");
-    // Duplicate id, unknown return type, unknown global type = 3 problems.
+    // Duplicate id, unknown return type, unknown global type.
     assert_eq!(errors.errors().len(), 3);
 }

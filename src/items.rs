@@ -9,8 +9,7 @@ use serde::{Deserialize, Serialize};
 pub struct Global {
     /// The global's name.
     pub name: String,
-    /// The namespace path leading to the global, outermost first. Empty for a
-    /// free global.
+    /// The namespace path, outermost first. Empty for a free global.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub namespace: Vec<String>,
     /// The global's address, relative to the module's image base.
@@ -28,8 +27,7 @@ pub struct Global {
 pub struct Vtable {
     /// The vtable's name (typically its class name).
     pub name: String,
-    /// The namespace path leading to the vtable, outermost first. Empty for a
-    /// free vtable.
+    /// The namespace path, outermost first. Empty for a free vtable.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub namespace: Vec<String>,
     /// The vtable's address, relative to the module's image base.

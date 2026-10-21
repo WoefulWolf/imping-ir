@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct Module {
-    /// The module's file name (e.g. `"game.exe"`, `"d3d11.dll"`).
+    /// The module's file name (e.g. `"app.exe"`, `"d3d11.dll"`).
     pub name: String,
     /// The module's architecture.
     pub architecture: Architecture,
@@ -23,7 +23,7 @@ pub struct Module {
     #[serde(with = "crate::hex::int")]
     #[cfg_attr(feature = "schema", schemars(with = "String"))]
     pub image_size: u32,
-    /// An optional content hash of the module file, for stronger identity.
+    /// A content hash of the module file, for a stronger identity check.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hash: Option<ModuleHash>,
     /// The module's type table.
@@ -42,8 +42,8 @@ pub struct Module {
 
 /// A module's instruction-set architecture.
 ///
-/// This also fixes the ABI: x64 uses the single Win64 convention, whilst x86
-/// selects a per-function [`CallingConvention`](crate::CallingConvention).
+/// This also fixes the ABI: x64 always uses Win64, while x86 picks a
+/// [`CallingConvention`](crate::CallingConvention) per function.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(rename_all = "lowercase")]

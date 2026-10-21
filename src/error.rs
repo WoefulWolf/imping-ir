@@ -3,19 +3,18 @@
 use crate::FormatVersion;
 use core::fmt;
 
-/// The result of an IR operation.
+/// A `Result` with this crate's [`Error`].
 pub type Result<T> = core::result::Result<T, Error>;
 
-/// Everything that can go wrong reading or writing an IR file.
+/// An error reading or writing an IR file.
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum Error {
-    /// The IR could not be parsed from, or written to, JSON.
+    /// The IR couldn't be parsed from, or written to, JSON.
     Json(serde_json::Error),
-    /// The IR's major format version is not supported by this reader.
+    /// The file's major format version isn't [`SUPPORTED_MAJOR`](crate::SUPPORTED_MAJOR).
     ///
-    /// Readers accept any minor version of the supported major, but reject a
-    /// different major, since it may be structurally incompatible.
+    /// A different major may be structurally incompatible; see [`FormatVersion`].
     UnsupportedVersion {
         /// The version found in the file.
         found: FormatVersion,

@@ -1,9 +1,5 @@
-//! Semantic validation of an [`Ir`](crate::Ir): referential integrity and
-//! basic invariants of the type table.
-//!
-//! This only *reports* problems; it does not decide which are fatal. Consumers
-//! (such as codegen) call [`Ir::validate`](crate::Ir::validate) and apply their
-//! own policy — for example downgrading some issues to warnings.
+//! Semantic checks on an [`Ir`](crate::Ir): type references and type-table
+//! invariants.
 
 use crate::{Ir, Module, Primitive, TypeDef, TypeId, TypeKind};
 use core::fmt;
@@ -64,10 +60,9 @@ impl fmt::Display for ValidationError {
 
 impl core::error::Error for ValidationError {}
 
-/// The collection of problems found by [`Ir::validate`](crate::Ir::validate).
+/// The problems found by [`Ir::validate`](crate::Ir::validate); never empty.
 ///
-/// Non-empty whenever validation fails; its [`Display`](fmt::Display) lists
-/// every problem.
+/// Its [`Display`](fmt::Display) lists every problem.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ValidationErrors(Vec<ValidationError>);
 
@@ -96,15 +91,14 @@ impl fmt::Display for ValidationErrors {
 impl core::error::Error for ValidationErrors {}
 
 impl Ir {
-    /// Checks every module's cross-references and type-table invariants,
-    /// returning all problems found.
+    /// Checks every module's type references and type-table invariants.
     ///
-    /// This is not run by the parser; call it explicitly. It reports issues but
-    /// does not decide which are fatal — that is the caller's policy.
+    /// Parsing doesn't run this. It reports every problem and leaves it to the
+    /// caller to decide which are fatal.
     ///
     /// # Errors
     ///
-    /// Returns [`ValidationErrors`] listing every problem if any are found.
+    /// [`ValidationErrors`] listing every problem, if there are any.
     pub fn validate(&self) -> core::result::Result<(), ValidationErrors> {
         let mut errors = Vec::new();
         for module in &self.modules {
@@ -119,7 +113,6 @@ impl Ir {
 }
 
 fn validate_module(module: &Module, errors: &mut Vec<ValidationError>) {
-    // Index the type table, reporting duplicate ids.
     let mut by_id: HashMap<u32, &TypeDef> = HashMap::with_capacity(module.types.len());
     for def in &module.types {
         if by_id.insert(def.id.0, def).is_some() {
@@ -140,7 +133,6 @@ fn validate_module(module: &Module, errors: &mut Vec<ValidationError>) {
         }
     };
 
-    // References within the type table.
     for def in &module.types {
         match &def.kind {
             TypeKind::Primitive { .. } | TypeKind::Opaque { .. } => {}
@@ -165,7 +157,7 @@ fn validate_module(module: &Module, errors: &mut Vec<ValidationError>) {
                     format!("type `{}` underlying", def.name),
                     errors,
                 );
-                // Only check integer-ness if the underlying type exists.
+                // A missing underlying type was just reported; don't report it twice.
                 if by_id.contains_key(&underlying.0)
                     && !matches!(resolve_primitive(&by_id, *underlying), Some(p) if is_integer(p))
                 {
@@ -199,7 +191,6 @@ fn validate_module(module: &Module, errors: &mut Vec<ValidationError>) {
         }
     }
 
-    // References from functions.
     for function in &module.functions {
         let name = qualify(&function.namespace, &function.name);
         check(
@@ -216,13 +207,11 @@ fn validate_module(module: &Module, errors: &mut Vec<ValidationError>) {
         }
     }
 
-    // References from globals.
     for global in &module.globals {
         let name = qualify(&global.namespace, &global.name);
         check(global.type_id, format!("global `{name}`"), errors);
     }
 
-    // Vtable entry signatures.
     for vtable in &module.vtables {
         for entry in &vtable.entries {
             if let Some(signature) = entry.signature {
@@ -236,7 +225,7 @@ fn validate_module(module: &Module, errors: &mut Vec<ValidationError>) {
     }
 }
 
-/// Joins a namespace path and name for display, e.g. `Game::Entity::Update`.
+/// Joins a namespace path and name, e.g. `Engine::Entity::Update`.
 fn qualify(namespace: &[String], name: &str) -> String {
     if namespace.is_empty() {
         name.to_string()
@@ -245,10 +234,10 @@ fn qualify(namespace: &[String], name: &str) -> String {
     }
 }
 
-/// Follows typedefs (guarding against cycles) to the primitive a type resolves
-/// to, if any.
+/// Follows typedefs to the primitive a type resolves to, if any.
 fn resolve_primitive(by_id: &HashMap<u32, &TypeDef>, start: TypeId) -> Option<Primitive> {
     let mut id = start;
+    // Bounded, so a typedef cycle gives up instead of looping forever.
     for _ in 0..64 {
         match &by_id.get(&id.0)?.kind {
             TypeKind::Primitive { primitive } => return Some(*primitive),
@@ -259,7 +248,6 @@ fn resolve_primitive(by_id: &HashMap<u32, &TypeDef>, start: TypeId) -> Option<Pr
     None
 }
 
-/// Returns whether a primitive is an integer type.
 fn is_integer(primitive: Primitive) -> bool {
     matches!(
         primitive,

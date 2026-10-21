@@ -2,11 +2,10 @@
 
 use serde::{Deserialize, Serialize};
 
-/// A stable identifier for a type within a module, referenced by functions,
-/// fields, globals and other types.
+/// A stable id for a type in its module's type table.
 ///
-/// Ids are assigned by the exporter and are stable across re-exports of the
-/// same build, so references and diffs stay meaningful.
+/// The exporter keeps ids stable across re-exports of the same build, so
+/// references and diffs stay meaningful.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(transparent)]
 #[cfg_attr(
@@ -24,8 +23,8 @@ pub struct TypeDef {
     pub id: TypeId,
     /// The type's source name (e.g. `"Vector3"`). Not required to be unique.
     pub name: String,
-    /// The namespace path leading to the type, outermost first. Empty for a
-    /// type outside any namespace. Since format 1.1.
+    /// The namespace path, outermost first. Empty outside any namespace. Since
+    /// format 1.1.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub namespace: Vec<String>,
     /// What kind of type this is, and its kind-specific data.
@@ -35,8 +34,8 @@ pub struct TypeDef {
 
 /// A type's kind and the data specific to it.
 ///
-/// Serialized with a `"kind"` discriminator alongside the enclosing
-/// [`TypeDef`]'s `id` and `name`.
+/// Serialized flat into the enclosing [`TypeDef`], with a `"kind"`
+/// discriminator.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[serde(tag = "kind", rename_all = "snake_case")]
@@ -97,7 +96,7 @@ pub enum TypeKind {
         /// The parameter types, in order.
         #[serde(default)]
         parameters: Vec<TypeId>,
-        /// The return type (use the `void` primitive for no return value).
+        /// The return type (the `void` primitive for no return value).
         return_type: TypeId,
         /// Whether the function is variadic.
         #[serde(default)]
@@ -130,10 +129,9 @@ pub struct Field {
     /// Bitfield placement, if this field is a bitfield.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub bits: Option<BitField>,
-    /// Whether this field is the struct's base class: the struct it derives
-    /// from, embedded at offset 0. Meaningful only on a struct-typed field at
-    /// offset 0 of a [`TypeKind::Struct`]; consumers ignore it elsewhere.
-    /// Since format 1.1.
+    /// Whether this field is the struct's embedded base class. Only meaningful
+    /// on a struct-typed field at offset 0 of a [`TypeKind::Struct`]; ignored
+    /// elsewhere. Since format 1.1.
     #[serde(default, skip_serializing_if = "core::ops::Not::not")]
     pub base: bool,
 }
@@ -154,7 +152,7 @@ pub struct BitField {
 pub struct EnumVariant {
     /// The constant's name.
     pub name: String,
-    /// The constant's value (signed to allow negative enumerators).
+    /// The constant's value, signed so negative enumerators fit.
     pub value: i64,
 }
 

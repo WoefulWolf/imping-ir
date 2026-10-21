@@ -4,19 +4,18 @@ use serde::{Deserialize, Serialize};
 
 /// The major format version this crate reads and writes.
 ///
-/// A reader rejects any other major version (see
-/// [`Ir::from_json_slice`](crate::Ir::from_json_slice)). This is independent of
-/// the crate's own package version.
+/// Other majors are rejected; see [`FormatVersion`]. Independent of the
+/// crate's own version.
 pub const SUPPORTED_MAJOR: u16 = 1;
 
 /// The minor format version this crate writes.
 pub const CURRENT_MINOR: u16 = 1;
 
-/// The format version of an IR file: a major and a minor number.
+/// The format version of an IR file.
 ///
-/// A change that old readers cannot understand bumps the major; a
-/// backward-compatible addition bumps the minor. Readers accept any minor of
-/// [`SUPPORTED_MAJOR`] and ignore fields they do not recognise.
+/// Breaking changes bump the major, backward-compatible additions the minor.
+/// Readers accept any minor of [`SUPPORTED_MAJOR`] and ignore fields they
+/// don't know.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct FormatVersion {
@@ -33,8 +32,8 @@ impl FormatVersion {
         minor: CURRENT_MINOR,
     };
 
-    /// Returns whether a reader of this crate can read a file of this version,
-    /// i.e. whether its major matches [`SUPPORTED_MAJOR`].
+    /// Returns whether this crate can read a file of this version, i.e. whether
+    /// its major is [`SUPPORTED_MAJOR`].
     pub fn is_supported(&self) -> bool {
         self.major == SUPPORTED_MAJOR
     }

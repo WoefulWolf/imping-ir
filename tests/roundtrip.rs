@@ -20,7 +20,6 @@ fn parses_sample_and_decodes_hex_addresses() {
     assert_eq!(module.timestamp, 0x64b8_f2a1);
     assert_eq!(module.image_size, 0x00a2_b000);
 
-    // A struct with its fields and offsets.
     let vector3 = &module.types[3];
     assert_eq!(vector3.name, "Vector3");
     let TypeKind::Struct { size, fields, .. } = &vector3.kind else {
@@ -30,7 +29,6 @@ fn parses_sample_and_decodes_hex_addresses() {
     assert_eq!(fields.len(), 3);
     assert_eq!(fields[2].offset, 8);
 
-    // A bitfield field carries its bit placement.
     let flags = &module.types[5];
     let TypeKind::Struct { fields, .. } = &flags.kind else {
         panic!("expected a struct");
@@ -38,7 +36,6 @@ fn parses_sample_and_decodes_hex_addresses() {
     let team = fields[1].bits.expect("team is a bitfield");
     assert_eq!((team.bit_offset, team.bit_width), (1, 3));
 
-    // An enum over its underlying type.
     let TypeKind::Enum {
         underlying,
         variants,
@@ -49,7 +46,6 @@ fn parses_sample_and_decodes_hex_addresses() {
     assert_eq!(*underlying, TypeId(2));
     assert_eq!(variants[1].value, 1);
 
-    // Types may sit in a namespace; a struct may mark its base class.
     assert!(vector3.namespace.is_empty());
     let player = &module.types[8];
     assert_eq!(
@@ -63,7 +59,6 @@ fn parses_sample_and_decodes_hex_addresses() {
     assert_eq!(fields[0].type_id, TypeId(7));
     assert!(!fields[1].base);
 
-    // Functions: hex RVA, verification bytes, storage, variadic.
     let normalize = &module.functions[0];
     assert_eq!(normalize.rva, 0x1_4230);
     assert_eq!(normalize.calling_convention, CallingConvention::Win64);
@@ -98,7 +93,7 @@ fn round_trips_through_json() {
     assert!(written.contains("\"rva\": \"0x14230\""));
     assert!(written.contains("\"image_base\": \"0x140000000\""));
 
-    // A type's namespace and a field's base flag are written only when set.
+    // A type's namespace and a field's base flag are only written when set.
     let value: serde_json::Value = serde_json::from_str(&written).expect("JSON");
     let types = &value["modules"][0]["types"];
     assert!(types[3].get("namespace").is_none());
@@ -122,8 +117,6 @@ fn rejects_unknown_major_version() {
 
 #[test]
 fn accepts_newer_minor_and_ignores_unknown_fields() {
-    // A future minor adds a field an old reader does not know; it must still
-    // read the parts it understands.
     let json = r#"{
         "format_version": { "major": 1, "minor": 7 },
         "modules": [],
@@ -161,7 +154,6 @@ fn json_schema_generates() {
     let schema = imping_ir::json_schema();
     let value = serde_json::to_value(&schema).expect("schema to JSON value");
     assert!(value.is_object(), "schema should be a JSON object");
-    // The schema must at least describe the top-level `modules` property.
     let text = serde_json::to_string(&value).unwrap();
     assert!(text.contains("modules"));
 }

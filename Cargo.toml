@@ -10,13 +10,12 @@ publish = false
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-# JSON Schema generation. Optional so consumers that only read IR (e.g. codegen)
-# need not pull it.
+# Optional, so crates that only read IR don't pull it in.
 schemars = { version = "1", optional = true }
 
 [features]
-# `schema` is opt-in; enable it to derive and emit the JSON Schema.
 default = []
+# Derives and emits the JSON Schema.
 schema = ["dep:schemars"]
 
 [lints.rust]

@@ -1,7 +1,6 @@
 //! Prints the IR JSON Schema to stdout.
 //!
-//! Run with: `cargo run --example dump_schema --features schema`
-//! Redirect to a file to capture it, e.g. `… > imping-ir.schema.json`.
+//! Run with: `cargo run --example dump_schema --features schema > imping-ir.schema.json`
 
 #[cfg(feature = "schema")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {

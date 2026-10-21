@@ -1,8 +1,7 @@
-# Runs the checks from the definition of done: formatting, clippy, tests and docs.
+# Runs fmt, clippy, tests and docs, with all features so the schema code is covered.
 # Usage, from the repo root: powershell -ExecutionPolicy Bypass -File scripts/check.ps1
 #
-# This crate is platform-independent and has no unsafe code, so there is no
-# per-target loop; `--all-features` exercises the optional schema path.
+# The crate is platform-independent with no unsafe code, so there's no per-target loop.
 
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path -Parent $PSScriptRoot)
