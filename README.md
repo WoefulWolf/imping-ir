@@ -4,6 +4,8 @@ Intermediate representation types and JSON Schema for the imping modding suite. 
 
 Status: early development, the schema is being designed. Not published.
 
+API docs: https://woefulwolf.github.io/imping-ir/
+
 ## Development
 
 Run all checks (formatting, clippy, tests, docs) from the repo root:
