@@ -9,7 +9,7 @@ use imping_ir::{
 
 fn main() -> imping_ir::Result<()> {
     let module = Module {
-        name: "game.exe".to_string(),
+        name: "target.exe".to_string(),
         architecture: Architecture::X64,
         image_base: 0x1_4000_0000,
         timestamp: 0x64b8_f2a1,
@@ -34,13 +34,13 @@ fn main() -> imping_ir::Result<()> {
             },
         ],
         functions: vec![Function {
-            name: "SetHealth".to_string(),
-            namespace: vec!["Game".to_string(), "Player".to_string()],
+            name: "SetVolume".to_string(),
+            namespace: vec!["App".to_string(), "Audio".to_string()],
             rva: 0x1_4230,
             calling_convention: CallingConvention::Win64,
             return_type: TypeId(0),
             parameters: vec![Parameter {
-                name: Some("amount".to_string()),
+                name: Some("level".to_string()),
                 type_id: TypeId(1),
                 storage: Storage::Register {
                     value: "ecx".to_string(),

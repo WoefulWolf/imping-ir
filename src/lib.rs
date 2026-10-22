@@ -1,5 +1,5 @@
 //! Intermediate representation (IR) types and JSON Schema for the imping
-//! modding suite.
+//! toolkit.
 //!
 //! One IR file describes one build of a target. Addresses are relative to each
 //! module's image base and written as `0x` hex strings; types are referenced
@@ -19,7 +19,7 @@
 //!
 //! let json = r#"{
 //!   "format_version": { "major": 1, "minor": 1 },
-//!   "modules": [ { "name": "game.exe", "architecture": "x64",
+//!   "modules": [ { "name": "target.exe", "architecture": "x64",
 //!     "image_base": "0x140000000", "timestamp": "0x64b8f2a1",
 //!     "image_size": "0xa2b000" } ]
 //! }"#;

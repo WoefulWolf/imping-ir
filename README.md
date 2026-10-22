@@ -1,26 +1,29 @@
 # imping-ir
 
-Intermediate representation types and JSON Schema for the imping modding suite. One IR file describes one build of a target program; these types read and write that file, and can emit its JSON Schema. The crate depends on nothing else in the suite.
+The intermediate representation (IR) of the imping toolkit: one JSON file describing one build of a program (its identity, types, functions and globals), with serde types, validation and a JSON Schema. It depends on nothing else in imping.
 
-Status: early development, the schema is being designed. Not published.
-
-API docs: https://woefulwolf.github.io/imping-ir/
-
-## Development
-
-Run all checks (formatting, clippy, tests, docs) from the repo root:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/check.ps1
+```toml
+[dependencies]
+imping-ir = { git = "https://github.com/WoefulWolf/imping-ir" }
 ```
+
+```rust
+let text = std::fs::read_to_string("target.ir.json")?;
+let ir = imping_ir::Ir::from_json_str(&text)?;
+ir.validate()?;
+for module in &ir.modules {
+    println!("{}: {} functions", module.name, module.functions.len());
+}
+```
+
+The JSON Schema comes from `imping_ir::json_schema()`, behind the `schema` feature.
+
+[API docs](https://woefulwolf.github.io/imping-ir/) · Early development; the format may still change.
+
+If imping helped your project, a mention or link back is appreciated. I'd also love to see what you make with it: share it in [Show and tell](https://github.com/WoefulWolf/imping/discussions/categories/show-and-tell), and it might get featured here!
 
 ## License
 
-Licensed under either of
-
-- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE))
-- MIT license ([LICENSE-MIT](LICENSE-MIT))
-
-at your option.
+Licensed under either of [Apache-2.0](LICENSE-APACHE) or [MIT](LICENSE-MIT), at your option.
 
 AI assistance was used for parts of this project.
